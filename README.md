@@ -1,7 +1,3 @@
-Here's the translation to Japanese along with the details on setting up Gunicorn:
-
----
-
 ## AWS EC2にDjangoプロジェクトをデプロイする
 
 ■ EC2はElastic Computeです。これは仮想サーバーです。
