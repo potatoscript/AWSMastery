@@ -35,16 +35,37 @@
          The .pem file makes authentication easier.
        - The key pair file will only be downloaded once.<br>
          If you delete or misplace this file, you will not be able to connect to your instance again.
+   - Add security group role
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/add security group role.png?raw=true" width="450" height="200" />
+   - Add the port range
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/port range.png?raw=true" width="450" height="200" />
+   - Launching instance
+     -  <img src="https://github.com/potatoscript/MyDocuments/blob/main/After launch instances.png?raw=true" width="450" height="200" />
+   - Next click on the Instance ID and it will bring you to the following page
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Instance ID.png?raw=true" width="450" height="200" />
+     - This will be the address that your web site will be host
           
 
 ### 2. **Connect to Your EC2 Instance**
-
+<img src="https://github.com/potatoscript/MyDocuments/blob/main/SSH client.png?raw=true" width="450" height="200" />
+<img src="https://github.com/potatoscript/MyDocuments/blob/main/change permission.png?raw=true" width="450" height="200" />
 1. **Open a terminal:**
    ```sh
    ssh -i /path/to/your-key-pair.pem ubuntu@your-ec2-public-dns
-   ```
+   ```<br>
+   this command is going to connect with your instance
+   <img src="https://github.com/potatoscript/MyDocuments/blob/main/connected to EC2 instance.png?raw=true" width="550" height="300" />
 
 ### 3. **Set Up the Environment**
+
+- When you are going to boot your EC2 first time then just type command 
+   ```sh
+    sudo su
+   ```
+- Next update all the packages use the command
+   ```sh
+    yum update
+   ```
 
 1. **Update the package lists:**
    ```sh
