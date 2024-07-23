@@ -1,3 +1,243 @@
+Here's the translation to Japanese along with the details on setting up Gunicorn:
+
+---
+
+## AWS EC2にDjangoプロジェクトをデプロイする
+
+■ EC2はElastic Computeです。これは仮想サーバーです。
+
+■ AWSは12ヶ月間の無料利用枠を提供しており、以下のサービスが無料で利用できます。
+
+<img src="https://github.com/potatoscript/MyDocuments/blob/main/Free Tier.png?raw=true" width="400" height="200" />
+
+### 1. **EC2インスタンスの起動**
+
+1. **AWS Management Consoleにログイン:**
+   - EC2ダッシュボードに移動します。
+
+   <img src="https://github.com/potatoscript/MyDocuments/blob/main/EC2search.png?raw=true" width="550" height="200" />
+   
+2. **インスタンスを起動:**
+   - 「Launch Instance」をクリックします。
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Resources.png?raw=true" width="550" height="200" />
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Launch instances.png?raw=true" width="550" height="200" />
+   - インスタンスの名前とタグを設定します。
+   - 「Ubuntu Server 20.04 LTS」などのAmazon Machine Image（AMI）を選択します。AMIはEC2で実行したいオペレーティングシステムです。
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/AMI.png?raw=true" width="400" height="200" />
+   - インスタンスタイプ（例：無料利用枠対象のt2.micro）を選択します。
+     - これは監視タイプのメモリで、仮想CPU1つを提供します。EC2の最も重要な構成です。
+     - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Instance Type.png?raw=true" width="550" height="200" />
+   - インスタンスの詳細を設定し、ストレージを追加し、必要に応じてタグを追加します。
+   - SSH（ポート22）とHTTP（ポート80）トラフィックを許可するようにセキュリティグループを構成します。
+   - インスタンスを確認して起動します。
+   - キーペア（.pemファイル）をダウンロードします（まだ持っていない場合）。
+       - キーペアはサーバーに接続するための認証に使用されます。
+       - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Key%20pair.png?raw=true" width="600" height="200" />
+       - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Create%20key%20pair.png?raw=true" width="250" height="200" />
+       - .pemファイルはUbuntuでSSH認証に使用されます。<br>
+         Windowsユーザーの場合、Git Bashをダウンロードする必要があります。これにより、SSHおよびLinuxコマンドが使用可能になります。<br>
+         .pemファイルは認証を簡単にします。
+       - キーペアファイルは一度だけダウンロードされます。<br>
+         このファイルを削除したり紛失したりすると、インスタンスに再接続できなくなります。
+   - セキュリティグループロールを追加します。
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/add security group role.png?raw=true" width="450" height="200" />
+   - ポート範囲を追加します。
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/port range.png?raw=true" width="450" height="200" />
+   - インスタンスの起動
+     -  <img src="https://github.com/potatoscript/MyDocuments/blob/main/After launch instances.png?raw=true" width="450" height="200" />
+   - 次にインスタンスIDをクリックすると、次のページに移動します。
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Instance ID.png?raw=true" width="450" height="200" />
+     - これがあなたのウェブサイトがホストされるアドレスです。
+
+### 2. **EC2インスタンスに接続する**
+<img src="https://github.com/potatoscript/MyDocuments/blob/main/SSH client.png?raw=true" width="450" height="200" />
+<img src="https://github.com/potatoscript/MyDocuments/blob/main/change permission.png?raw=true" width="450" height="200" />
+1. **ターミナルを開く:**
+   ```sh
+   ssh -i /path/to/your-key-pair.pem ubuntu@your-ec2-public-dns
+   ```
+   このコマンドはインスタンスに接続します。
+   <img src="https://github.com/potatoscript/MyDocuments/blob/main/connected to EC2 instance.png?raw=true" width="550" height="300" />
+
+### 3. **環境を設定する**
+
+- EC2を初めて起動する際に、次のコマンドを入力します。
+   ```sh
+    sudo su
+   ```
+- 次に、すべてのパッケージを更新するには、次のコマンドを使用します。
+   ```sh
+    yum update
+   ```
+
+1. **パッケージリストを更新する:**
+   ```sh
+   sudo apt update
+   ```
+
+2. **必要なパッケージをインストールする:**
+   ```sh
+   sudo apt install python3-pip python3-dev libpq-dev nginx curl
+   ```
+
+3. **virtualenvをインストールする:**
+   ```sh
+   sudo pip3 install virtualenv
+   ```
+
+4. **仮想環境を作成する:**
+   ```sh
+   mkdir ~/myproject
+   cd ~/myproject
+   virtualenv venv
+   source venv/bin/activate
+   ```
+
+### 4. **Djangoプロジェクトをデプロイする**
+
+1. **Djangoプロジェクトをクローンする:**
+   ```sh
+   git clone your-django-project-repo
+   cd your-django-project
+   ```
+
+2. **依存関係をインストールする:**
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+3. **Django設定を構成する:**
+   - `settings.py`の`ALLOWED_HOSTS`を、EC2インスタンスの公開DNSを含むように更新します。
+   - RDSのようなマネージドデータベースサービスを使用する場合、データベース設定を構成します。
+
+4. **静的ファイルを収集する:**
+   ```sh
+   python manage.py collectstatic
+   ```
+
+5. **マイグレーションを適用する:**
+   ```sh
+   python manage.py migrate
+   ```
+
+### 5. **Gunicornの設定**
+
+1. **Gunicornをインストールする:**
+   ```sh
+   pip install gunicorn
+   ```
+
+2. **Gunicornのsystemdサービスファイルを作成する:**
+   ```sh
+   sudo nano /etc/systemd/system/gunicorn.service
+   ```
+
+   次の内容を追加します:
+   ```ini
+   [Unit]
+   Description=gunicorn daemon
+   After=network.target
+
+   [Service]
+   User=ubuntu
+   Group=www-data
+   WorkingDirectory=/home/ubuntu/myproject/your-django-project
+   ExecStart=/home/ubuntu/myproject/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/ubuntu/myproject/your-django-project.sock your_django_project.wsgi:application
+
+   [Install]
+   WantedBy=multi-user.target
+   ```
+
+3. **Gunicornを開始および有効化する:**
+   ```sh
+   sudo systemctl start gunicorn
+   sudo systemctl enable gunicorn
+   ```
+
+### 6. **Nginxの設定**
+
+1. **デフォルトのNginx設定を削除する:**
+   ```sh
+   sudo rm /etc/nginx/sites-enabled/default
+   ```
+
+2. **新しいNginx設定を作成する:**
+   ```sh
+   sudo nano /etc/nginx/sites-available/your-django-project
+   ```
+
+   次の内容を追加します:
+   ```nginx
+   server {
+       listen 80;
+       server_name your-ec2-public-dns;
+
+       location = /favicon.ico { access_log off; log_not_found off; }
+       location /static/ {
+           root /home/ubuntu/myproject/your-django-project;
+       }
+
+       location / {
+           include proxy_params;
+           proxy_pass http://unix:/home/ubuntu/myproject/your-django-project.sock;
+       }
+   }
+   ```
+
+3. **新しいNginx設定を有効にする:**
+   ```sh
+   sudo ln -s
+
+以下は、Gunicornの設定に関する日本語での詳細な説明です。
+
+### Gunicornの設定
+
+Gunicorn (Green Unicorn) は、PythonのWSGI HTTPサーバーです。DjangoのようなPython Webアプリケーションを実行するのに非常に適しています。以下にGunicornの設定手順を説明します。
+
+1. **Gunicornのインストール:**
+   ```sh
+   pip install gunicorn
+   ```
+
+2. **Gunicornのsystemdサービスファイルを作成する:**
+   まず、`gunicorn.service`というsystemdサービスファイルを作成します。
+   ```sh
+   sudo nano /etc/systemd/system/gunicorn.service
+   ```
+
+   次の内容を追加します:
+   ```ini
+   [Unit]
+   Description=gunicorn daemon
+   After=network.target
+
+   [Service]
+   User=ubuntu
+   Group=www-data
+   WorkingDirectory=/home/ubuntu/myproject/your-django-project
+   ExecStart=/home/ubuntu/myproject/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/ubuntu/myproject/your-django-project.sock your_django_project.wsgi:application
+
+   [Install]
+   WantedBy=multi-user.target
+   ```
+
+   **説明:**
+   - `[Unit]` セクションでは、このサービスがネットワークが利用可能になった後に起動することを指定しています。
+   - `[Service]` セクションでは、Gunicornが起動するための設定を行います。`User`と`Group`は、サービスが実行されるユーザーとグループを指定します。`WorkingDirectory`はDjangoプロジェクトのディレクトリを指定し、`ExecStart`はGunicornを起動するコマンドを指定します。
+   - `[Install]` セクションでは、このサービスがマルチユーザーモードで有効にされることを指定しています。
+
+3. **Gunicornを開始および有効化する:**
+   次に、Gunicornサービスを開始し、ブート時に自動的に起動するように有効化します。
+   ```sh
+   sudo systemctl start gunicorn
+   sudo systemctl enable gunicorn
+   ```
+
+これで、GunicornがDjangoプロジェクトを処理するために設定されました。次に、Nginxを設定して、Gunicornからのリクエストを処理するようにします。
+
+
+
+
 ## Deploying a Django project to AWS EC2 
 
 ■ EC2 is the Elastic Compute. It is a virtual Server
