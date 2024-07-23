@@ -1,18 +1,41 @@
-Deploying a Django project to AWS EC2 involves several steps, including setting up the EC2 instance, configuring the environment, and deploying the Django application. Here is a step-by-step guide to help you through the process:
+## Deploying a Django project to AWS EC2 
+
+■ EC2 is the Elastic Compute. It is a virtual Server
+
+■ AWS isproviding the free tier for the 12 months and you will get the following for free
+
+<img src="https://github.com/potatoscript/MyDocuments/blob/main/Free Tier.png?raw=true" width="400" height="200" />
 
 ### 1. **Launch an EC2 Instance**
 
 1. **Log in to AWS Management Console:**
    - Navigate to the EC2 Dashboard.
+
+   <img src="https://github.com/potatoscript/MyDocuments/blob/main/EC2search.png?raw=true" width="550" height="200" />
    
 2. **Launch an Instance:**
    - Click on "Launch Instance."
-   - Choose an Amazon Machine Image (AMI), such as "Ubuntu Server 20.04 LTS."
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Resources.png?raw=true" width="550" height="200" />
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Launch instances.png?raw=true" width="550" height="200" />
+   - Set the name and Tag for your instance
+   - Choose an Amazon Machine Image (AMI), such as "Ubuntu Server 20.04 LTS.", AMI is operating system that you want to run into your EC2
+   - <img src="https://github.com/potatoscript/MyDocuments/blob/main/AMI.png?raw=true" width="400" height="200" />
    - Select an instance type (e.g., t2.micro for free tier eligibility).
+     - is a watched type memory one virtual CPU you will get and it is the most imporant configuration into the EC2
+     - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Instance Type.png?raw=true" width="550" height="200" />
    - Configure instance details, add storage, and add tags if necessary.
    - Configure the security group to allow SSH (port 22) and HTTP (port 80) traffic.
    - Review and launch the instance.
    - Download the key pair (.pem file) if you don't have one already.
+       - A key pair is used for authentication to connect to your server.
+       - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Key%20pair.png?raw=true" width="600" height="200" />
+       - <img src="https://github.com/potatoscript/MyDocuments/blob/main/Create%20key%20pair.png?raw=true" width="250" height="200" />
+       - The .pem file is used with SSH for authentication on Ubuntu. <br>
+         If you are a Windows user, you need to download Git Bash, which allows you to use SSH and Linux commands. <br>
+         The .pem file makes authentication easier.
+       - The key pair file will only be downloaded once.<br>
+         If you delete or misplace this file, you will not be able to connect to your instance again.
+          
 
 ### 2. **Connect to Your EC2 Instance**
 
